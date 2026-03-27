@@ -53,3 +53,15 @@ Výchozí seed vytvoří administrátora:
 - `JWT_SECRET` musí být nastavený, jinak aplikace failne při startu.
 - Pokud došlo k úniku tajného klíče, je potřeba ho okamžitě vyměnit.
 - Pro nasazení je vhodné pravidelně zálohovat databázi a uchovávat migrace spolu se seed skriptem.
+
+## GitHub CI
+
+- Automatická kontrola je definovaná v [.github/workflows/ci.yml](/home/oliver/Documents/ateneo-web/.github/workflows/ci.yml).
+- Workflow při pushi a pull requestu spouští `npm test`, `npm run lint`, `npx tsc --noEmit`, `npx prisma validate`, `npx prisma generate` a `npm run build`.
+- Na GitHubu je potřeba mít zapnuté GitHub Actions pro tento repozitář.
+
+## Testovací preview přes GitHub
+
+- Plná aplikace neběží na GitHub Pages, protože používá server actions, cookies a Prisma.
+- Pro dočasné testování s několika lidmi je připravená konfigurace Codespaces v [.devcontainer/devcontainer.json](/home/oliver/Documents/ateneo-web/.devcontainer/devcontainer.json).
+- Po vytvoření Codespace spusťte `npm run dev`, otevřete port `3000` a sdílejte URL jen s lidmi, kterým chcete preview ukázat.
