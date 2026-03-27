@@ -4,6 +4,8 @@ import { PublicFooter } from '@/app/ui/public/footer'
 import { PublicNavbar } from '@/app/ui/public/navbar'
 import { EVENT_TYPE_LABELS, EventTypeSchema } from '@/lib/definitions'
 
+export const dynamic = 'force-dynamic'
+
 export default async function PublicEventsPage() {
     const events = await prisma.event.findMany({
         where: {
