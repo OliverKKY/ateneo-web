@@ -4,42 +4,76 @@ import { PublicFooter } from '@/app/ui/public/footer'
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-slate-950 text-white selection:bg-white selection:text-slate-900">
+    <main className="min-h-screen bg-[#09141c] text-white selection:bg-white selection:text-slate-900">
+      <a href="#main-content" className="skip-link">Přeskočit na obsah</a>
       <PublicNavbar />
 
-      {/* Hero Section */}
-      <section className="relative h-screen flex items-center justify-center overflow-hidden">
+      <section id="main-content" className="relative overflow-hidden px-6 pb-20 pt-32">
         <div className="absolute inset-0 z-0">
-          <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-sky-600/40 rounded-full blur-[150px]"></div>
-          <div className="absolute bottom-1/4 right-1/4 w-[600px] h-[600px] bg-indigo-500/20 rounded-full blur-[200px]"></div>
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(245,176,125,0.18),transparent_30%),radial-gradient(circle_at_bottom_right,rgba(71,162,180,0.16),transparent_32%),linear-gradient(180deg,#10222c_0%,#09141c_55%,#08131a_100%)]" />
+          <div className="absolute left-[8%] top-[14%] h-[26rem] w-[26rem] rounded-full bg-[#d18152]/18 blur-[150px]" />
+          <div className="absolute bottom-[8%] right-[10%] h-[24rem] w-[24rem] rounded-full bg-[#3e8896]/16 blur-[130px]" />
         </div>
 
-        <div className="relative z-10 text-center px-4 max-w-4xl mx-auto">
-          <h1 className="text-5xl md:text-8xl font-black mb-6 tracking-tight bg-clip-text text-transparent bg-gradient-to-br from-white via-gray-200 to-gray-500">
-            ATENEO
-          </h1>
-          <p className="text-xl md:text-2xl text-gray-300 font-light mb-10">
-            Smíšený pěvecký sbor Univerzity Palackého
-          </p>
-          <div className="flex justify-center gap-4">
-            <Link href="/events" className="px-8 py-3 bg-white text-slate-900 font-bold rounded-full hover:bg-gray-200 transition-colors">
-              Nadcházející koncerty
-            </Link>
-            <Link href="/about" className="px-8 py-3 border border-white/30 rounded-full hover:bg-white/10 transition-colors">
-              Přidej se k nám
-            </Link>
+        <div className="relative z-10 mx-auto grid min-h-[72vh] max-w-6xl items-center gap-12 lg:grid-cols-[1.1fr_0.9fr]">
+          <div className="max-w-3xl">
+            <p className="text-sm font-semibold uppercase tracking-[0.38em] text-[#f2c8ae]">Smíšený pěvecký sbor</p>
+            <h1 className="mt-5 text-5xl font-black tracking-tight text-white md:text-7xl">
+              Univerzitní sbor se zvukem, který stojí na detailu i energii.
+            </h1>
+            <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-300 md:text-xl">
+              Ateneo propojuje studenty a absolventy napříč obory. Vystupujeme na koncertech, připravujeme soustředění a budujeme moderní interní zázemí pro členy.
+            </p>
+            <div className="mt-10 flex flex-wrap gap-4">
+              <Link href="/events" className="rounded-full bg-[#f2dfd1] px-8 py-3 font-bold text-slate-900 shadow-lg shadow-black/15 hover:bg-[#f7ebe3]">
+                Nadcházející koncerty
+              </Link>
+              <Link href="/about" className="rounded-full border border-white/18 bg-white/6 px-8 py-3 font-semibold hover:bg-white/12">
+                Přidej se k nám
+              </Link>
+            </div>
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
+            <div className="rounded-[2rem] border border-white/10 bg-white/6 p-6 shadow-2xl shadow-black/20 backdrop-blur-xl">
+              <div className="text-sm uppercase tracking-[0.28em] text-slate-400">Sezóna</div>
+              <div className="mt-3 text-3xl font-bold text-white">Koncerty, zkoušky, soustředění</div>
+              <p className="mt-4 text-sm leading-7 text-slate-300">
+                Program stavíme od renesance po současnost a vedle koncertů pracujeme i s interním archivem a plánováním účasti.
+              </p>
+            </div>
+            <div className="rounded-[2rem] border border-[#f2c8ae]/18 bg-[#f2c8ae]/10 p-6 backdrop-blur-xl">
+              <div className="text-sm uppercase tracking-[0.28em] text-[#f4d7c4]">Intranet</div>
+              <div className="mt-3 text-3xl font-bold text-white">Události a správa sboru na jednom místě</div>
+              <p className="mt-4 text-sm leading-7 text-slate-200">
+                Přihlášky na akce, uživatelské role i správa skladeb jsou sjednocené v jednom rozhraní pro vedení i členy.
+              </p>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* About Teaser */}
-      <section className="py-24 bg-slate-900 border-t border-white/5">
-        <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl font-bold mb-8 text-white">O nás</h2>
-          <p className="max-w-2xl mx-auto text-gray-400 leading-relaxed">
-            Ateneo je dynamické hudební těleso, které spojuje studenty i absolventy napříč všemi obory.
-            Soustředíme se na interpretaci skladeb od renesance po současnost, včetně populární hudby a spirituálů.
-          </p>
+      <section className="border-t border-white/8 bg-[#08131a] py-24">
+        <div className="mx-auto grid max-w-6xl gap-6 px-6 lg:grid-cols-3">
+          {[
+            {
+              title: 'Repertoár bez šablony',
+              text: 'Od renesanční polyfonie po současné aranže. Hudební dramaturgie stojí na kontrastu, ne na rutině.',
+            },
+            {
+              title: 'Komunita a disciplína',
+              text: 'Sbor funguje jako živé těleso: zkoušky, akce a vystoupení mají rytmus, odpovědnost i radost z detailu.',
+            },
+            {
+              title: 'Digitální zázemí',
+              text: 'Veřejná prezentace a interní správa už nejsou oddělené světy. Členové i vedení mají jasný pracovní tok.',
+            },
+          ].map((item) => (
+            <article key={item.title} className="rounded-[2rem] border border-white/8 bg-white/5 p-7">
+              <h2 className="text-2xl font-bold text-white">{item.title}</h2>
+              <p className="mt-4 text-sm leading-7 text-slate-300">{item.text}</p>
+            </article>
+          ))}
         </div>
       </section>
 

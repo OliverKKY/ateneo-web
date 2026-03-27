@@ -36,75 +36,75 @@ export default function CreateUserForm({
     )
 
     return (
-        <form action={action} className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 space-y-4">
-            <div className="grid grid-cols-2 gap-4">
+        <form action={action} className="space-y-5 rounded-[28px] border border-white/70 bg-[rgba(255,248,242,0.84)] p-7 shadow-[0_30px_60px_rgba(86,56,40,0.12)] backdrop-blur">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <div>
-                    <label className="block text-sm font-medium text-gray-700">Jméno</label>
+                    <label className="block text-sm font-medium text-[#5a3b31]">Jméno</label>
                     <input
                         name="firstName"
                         defaultValue={user?.firstName ?? ''}
-                        className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
+                        className="mt-2 block w-full rounded-2xl border border-[#d8c2b6] bg-[rgba(255,255,255,0.72)] px-4 py-3 text-[#241612] outline-none transition focus:border-[#b56a44] focus:ring-2 focus:ring-[#f0c7ac]"
                         required
                     />
-                    {state?.errors?.firstName && <p className="text-red-500 text-sm">{state.errors.firstName}</p>}
+                    {state?.errors?.firstName && <p className="mt-2 text-sm text-red-600">{state.errors.firstName}</p>}
                 </div>
                 <div>
-                    <label className="block text-sm font-medium text-gray-700">Příjmení</label>
+                    <label className="block text-sm font-medium text-[#5a3b31]">Příjmení</label>
                     <input
                         name="lastName"
                         defaultValue={user?.lastName ?? ''}
-                        className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
+                        className="mt-2 block w-full rounded-2xl border border-[#d8c2b6] bg-[rgba(255,255,255,0.72)] px-4 py-3 text-[#241612] outline-none transition focus:border-[#b56a44] focus:ring-2 focus:ring-[#f0c7ac]"
                         required
                     />
-                    {state?.errors?.lastName && <p className="text-red-500 text-sm">{state.errors.lastName}</p>}
+                    {state?.errors?.lastName && <p className="mt-2 text-sm text-red-600">{state.errors.lastName}</p>}
                 </div>
             </div>
 
             <div>
-                <label className="block text-sm font-medium text-gray-700">Email</label>
+                <label className="block text-sm font-medium text-[#5a3b31]">Email</label>
                 <input
                     name="email"
                     type="email"
                     defaultValue={user?.email ?? ''}
-                    className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
+                    className="mt-2 block w-full rounded-2xl border border-[#d8c2b6] bg-[rgba(255,255,255,0.72)] px-4 py-3 text-[#241612] outline-none transition focus:border-[#b56a44] focus:ring-2 focus:ring-[#f0c7ac]"
                     required
                 />
-                {state?.errors?.email && <p className="text-red-500 text-sm">{state.errors.email}</p>}
+                {state?.errors?.email && <p className="mt-2 text-sm text-red-600">{state.errors.email}</p>}
             </div>
 
             <div>
-                <label className="block text-sm font-medium text-gray-700">
+                <label className="block text-sm font-medium text-[#5a3b31]">
                     {isEditing ? 'Nové heslo (volitelné)' : 'Heslo'}
                 </label>
                 <input
                     name="password"
                     type="password"
-                    className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
+                    className="mt-2 block w-full rounded-2xl border border-[#d8c2b6] bg-[rgba(255,255,255,0.72)] px-4 py-3 text-[#241612] outline-none transition focus:border-[#b56a44] focus:ring-2 focus:ring-[#f0c7ac]"
                     required={!isEditing}
                 />
-                {state?.errors?.password && <p className="text-red-500 text-sm">{state.errors.password}</p>}
+                {state?.errors?.password && <p className="mt-2 text-sm text-red-600">{state.errors.password}</p>}
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <div>
-                    <label className="block text-sm font-medium text-gray-700">Role</label>
+                    <label className="block text-sm font-medium text-[#5a3b31]">Role</label>
                     <select
                         name="roleId"
                         defaultValue={String(user?.roleId ?? roles[0]?.id ?? '')}
-                        className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
+                        className="mt-2 block w-full rounded-2xl border border-[#d8c2b6] bg-[rgba(255,255,255,0.72)] px-4 py-3 text-[#241612] outline-none transition focus:border-[#b56a44] focus:ring-2 focus:ring-[#f0c7ac]"
                     >
                         {roles.map((r) => (
                             <option key={r.id} value={r.id}>{r.name}</option>
                         ))}
                     </select>
-                    {state?.errors?.roleId && <p className="text-red-500 text-sm">{state.errors.roleId}</p>}
+                    {state?.errors?.roleId && <p className="mt-2 text-sm text-red-600">{state.errors.roleId}</p>}
                 </div>
                 <div>
-                    <label className="block text-sm font-medium text-gray-700">Hlas</label>
+                    <label className="block text-sm font-medium text-[#5a3b31]">Hlas</label>
                     <select
                         name="voice"
                         defaultValue={user?.voice ?? ''}
-                        className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
+                        className="mt-2 block w-full rounded-2xl border border-[#d8c2b6] bg-[rgba(255,255,255,0.72)] px-4 py-3 text-[#241612] outline-none transition focus:border-[#b56a44] focus:ring-2 focus:ring-[#f0c7ac]"
                     >
                         <option value="">-</option>
                         {VOICES.map((voice) => (
@@ -113,40 +113,40 @@ export default function CreateUserForm({
                             </option>
                         ))}
                     </select>
-                    {state?.errors?.voice && <p className="text-red-500 text-sm">{state.errors.voice}</p>}
+                    {state?.errors?.voice && <p className="mt-2 text-sm text-red-600">{state.errors.voice}</p>}
                 </div>
             </div>
 
             <div>
-                <label className="block text-sm font-medium text-gray-700">Telefon</label>
+                <label className="block text-sm font-medium text-[#5a3b31]">Telefon</label>
                 <input
                     name="phone"
                     defaultValue={user?.phone ?? ''}
-                    className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
+                    className="mt-2 block w-full rounded-2xl border border-[#d8c2b6] bg-[rgba(255,255,255,0.72)] px-4 py-3 text-[#241612] outline-none transition focus:border-[#b56a44] focus:ring-2 focus:ring-[#f0c7ac]"
                 />
-                {state?.errors?.phone && <p className="text-red-500 text-sm">{state.errors.phone}</p>}
+                {state?.errors?.phone && <p className="mt-2 text-sm text-red-600">{state.errors.phone}</p>}
             </div>
 
-            <label className="flex items-center gap-3 rounded-lg border border-gray-200 bg-gray-50 px-4 py-3">
+            <label className="flex items-center gap-3 rounded-2xl border border-[#e6d4ca] bg-[rgba(255,255,255,0.58)] px-4 py-4">
                 <input
                     name="isActive"
                     type="checkbox"
                     defaultChecked={user?.isActive ?? true}
-                    className="h-4 w-4 rounded border-gray-300 text-slate-900"
+                    className="h-4 w-4 rounded border-[#c9a999] text-[#5a3b31]"
                 />
-                <span className="text-sm text-gray-700">Uživatel má aktivní přístup</span>
+                <span className="text-sm text-[#6c5148]">Uživatel má aktivní přístup</span>
             </label>
-            {state?.errors?.isActive && <p className="text-red-500 text-sm">{state.errors.isActive}</p>}
+            {state?.errors?.isActive && <p className="text-sm text-red-600">{state.errors.isActive}</p>}
 
             {state?.message && (
-                <p className="text-red-500 text-sm">{state.message}</p>
+                <p className="text-sm text-red-600">{state.message}</p>
             )}
 
             <div className="pt-4">
                 <button
                     type="submit"
                     disabled={isPending}
-                    className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-slate-900 hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500 disabled:opacity-50"
+                    className="flex w-full justify-center rounded-full bg-[linear-gradient(135deg,#2f1b16_0%,#51342b_100%)] px-5 py-3 text-sm font-semibold text-[#fff7f0] shadow-[0_16px_35px_rgba(47,27,22,0.18)] transition-transform duration-200 hover:-translate-y-0.5 disabled:opacity-50"
                 >
                     {isPending ? 'Ukládám...' : (isEditing ? 'Uložit změny' : 'Vytvořit uživatele')}
                 </button>

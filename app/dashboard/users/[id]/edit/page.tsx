@@ -34,8 +34,16 @@ export default async function UserEditPage({ params }: UserEditPageProps) {
     const voice = VoiceSchema.safeParse(user.voice)
 
     return (
-        <div className="max-w-2xl mx-auto">
-            <h1 className="text-2xl font-bold mb-6">Upravit uživatele</h1>
+        <div className="mx-auto max-w-3xl space-y-6">
+            <div className="space-y-2">
+                <p className="text-xs font-semibold uppercase tracking-[0.32em] text-[#b56a44]">
+                    Správa sboru
+                </p>
+                <h1 className="text-3xl font-semibold tracking-tight text-[#241612]">Upravit uživatele</h1>
+                <p className="max-w-2xl text-sm leading-6 text-[#6c5148]">
+                    Změňte roli, kontaktní údaje nebo stav přístupu bez skákání mezi různými obrazovkami.
+                </p>
+            </div>
             <CreateUserForm
                 roles={roles}
                 user={{

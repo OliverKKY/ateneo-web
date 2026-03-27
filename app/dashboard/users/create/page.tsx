@@ -8,8 +8,16 @@ export default async function CreateUserPage() {
     const roles = await prisma.role.findMany()
 
     return (
-        <div className="max-w-2xl mx-auto">
-            <h1 className="text-2xl font-bold mb-6">Přidat nového uživatele</h1>
+        <div className="mx-auto max-w-3xl space-y-6">
+            <div className="space-y-2">
+                <p className="text-xs font-semibold uppercase tracking-[0.32em] text-[#b56a44]">
+                    Správa sboru
+                </p>
+                <h1 className="text-3xl font-semibold tracking-tight text-[#241612]">Přidat nového uživatele</h1>
+                <p className="max-w-2xl text-sm leading-6 text-[#6c5148]">
+                    Založte účet, nastavte roli a připravte člena na přístup do intranetu.
+                </p>
+            </div>
             <CreateUserForm roles={roles} />
         </div>
     )

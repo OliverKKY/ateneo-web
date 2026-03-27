@@ -1,7 +1,6 @@
 import { requireSession, hasRole } from '@/lib/auth'
-import { logout } from '@/app/actions/auth'
 import { ADMIN_ONLY_ROLES, SONG_EDITOR_ROLES } from '@/lib/definitions'
-import Link from 'next/link'
+import { DashboardSidebar } from '@/app/ui/dashboard/sidebar'
 
 export default async function DashboardLayout({
     children,
@@ -10,42 +9,26 @@ export default async function DashboardLayout({
 }) {
     const session = await requireSession()
     const role = session.role
+    const navigationItems = [
+        { href: '/dashboard', label: 'Přehled' },
+        { href: '/dashboard/events', label: 'Události' },
+        ...(hasRole(role, SONG_EDITOR_ROLES) ? [{ href: '/dashboard/songs', label: 'Skladby' }] : []),
+        ...(hasRole(role, ADMIN_ONLY_ROLES) ? [{ href: '/dashboard/users', label: 'Uživatelé' }] : []),
+        { href: '/dashboard/profile', label: 'Můj profil', divider: true },
+    ]
 
     return (
-        <div className="min-h-screen bg-gray-50 flex flex-col md:flex-row">
-            <aside className="w-full md:w-64 bg-slate-900 text-white p-6 flex flex-col">
-                <div className="mb-8">
-                    <h2 className="text-2xl font-bold text-white">Ateneo</h2>
-                    <p className="text-sm text-gray-400">Intranet</p>
-                </div>
+        <div className="min-h-screen bg-[linear-gradient(180deg,#f6f1e7_0%,#f1ebe0_100%)]">
+            <a href="#main-content" className="skip-link">
+                Přeskočit na obsah
+            </a>
+            <div className="flex min-h-screen flex-col md:flex-row">
+                <DashboardSidebar role={role} items={navigationItems} />
 
-                <nav className="flex-1 space-y-2">
-                    <Link href="/dashboard" className="block px-4 py-2 hover:bg-white/10 rounded-lg transition-colors">Přehled</Link>
-                    <Link href="/dashboard/events" className="block px-4 py-2 hover:bg-white/10 rounded-lg transition-colors">Události</Link>
-
-                    {hasRole(role, SONG_EDITOR_ROLES) && (
-                        <Link href="/dashboard/songs" className="block px-4 py-2 hover:bg-white/10 rounded-lg transition-colors">Skladby</Link>
-                    )}
-
-                    {hasRole(role, ADMIN_ONLY_ROLES) && (
-                        <Link href="/dashboard/users" className="block px-4 py-2 hover:bg-white/10 rounded-lg transition-colors">Uživatelé</Link>
-                    )}
-
-                    <Link href="/dashboard/profile" className="block px-4 py-2 hover:bg-white/10 rounded-lg transition-colors mt-8 border-t border-white/10">Můj profil</Link>
-                </nav>
-
-                <div className="mt-auto border-t border-white/10 pt-4">
-                    <div className="text-sm text-gray-400 mb-2">Přihlášen jako:</div>
-                    <div className="font-semibold truncate">{role}</div>
-                    <form action={logout} className="mt-4">
-                        <button type="submit" className="w-full text-left px-4 py-2 text-red-400 hover:bg-white/10 rounded-lg transition-colors">Odhlásit se</button>
-                    </form>
-                </div>
-            </aside>
-
-            <main className="flex-1 p-8 overflow-y-auto">
+                <main id="main-content" className="min-w-0 flex-1 p-6 md:p-8">
                 {children}
-            </main>
+                </main>
+            </div>
         </div>
     )
 }

@@ -2,7 +2,8 @@ import LoginForm from '@/app/ui/login-form'
 
 export default function LoginPage() {
     return (
-        <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#16303a] px-4 text-white">
+        <main id="main-content" className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#16303a] px-4 text-white">
+            <a href="#login-panel" className="skip-link">Přeskočit na přihlášení</a>
             <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0">
                 <div className="absolute inset-0 bg-[linear-gradient(140deg,rgba(10,24,31,0.7),rgba(26,67,79,0.35),rgba(197,106,61,0.25))]" />
                 <div className="absolute -top-[18%] left-[8%] h-[26rem] w-[26rem] rounded-full bg-[#d98b5d]/35 blur-[140px]" />
@@ -25,7 +26,7 @@ export default function LoginPage() {
                     </div>
                 </div>
 
-                <div className="relative mx-auto w-full max-w-md">
+                <div id="login-panel" className="relative mx-auto w-full max-w-md">
                     <div className="absolute inset-0 rounded-[2rem] bg-white/10 blur-2xl" />
                     <div className="relative rounded-[2rem] border border-white/15 bg-white/8 p-4 shadow-2xl backdrop-blur-xl">
                         <div className="mb-8 text-center">

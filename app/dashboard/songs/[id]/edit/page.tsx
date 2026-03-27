@@ -31,8 +31,16 @@ export default async function SongEditPage({ params }: SongEditPageProps) {
     const sheetType = SheetTypeSchema.safeParse(song.sheetType)
 
     return (
-        <div className="max-w-2xl mx-auto">
-            <h1 className="text-2xl font-bold mb-6">Upravit skladbu</h1>
+        <div className="mx-auto max-w-3xl space-y-6">
+            <div className="space-y-2">
+                <p className="text-xs font-semibold uppercase tracking-[0.32em] text-[#b56a44]">
+                    Repertoár
+                </p>
+                <h1 className="text-3xl font-semibold tracking-tight text-[#241612]">Upravit skladbu</h1>
+                <p className="max-w-2xl text-sm leading-6 text-[#6c5148]">
+                    Aktualizujte detaily skladby, aby archiv zůstal přehledný a použitelný.
+                </p>
+            </div>
             <CreateSongForm
                 song={{
                     id: song.id,

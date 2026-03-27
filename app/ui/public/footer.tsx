@@ -2,32 +2,36 @@ import Link from 'next/link'
 
 export function PublicFooter() {
     return (
-        <footer className="bg-slate-900 text-white py-12 border-t border-white/10">
-            <div className="container mx-auto px-4">
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-                    <div>
-                        <h3 className="text-white font-bold mb-4">ATENEO</h3>
-                        <p className="text-gray-400 text-sm">Smíšený pěvecký sbor Univerzity Palackého v Olomouci.</p>
-                    </div>
-                    <div>
-                        <h4 className="font-bold mb-4">Odkazy</h4>
-                        <ul className="space-y-2 text-gray-400 text-sm">
+        <footer className="border-t border-white/10 bg-[#08131a] text-white">
+            <div className="mx-auto max-w-6xl px-6 py-14">
+                <div className="grid grid-cols-1 gap-10 md:grid-cols-[1.1fr_0.7fr_1.2fr]">
+                    <section aria-labelledby="footer-brand">
+                        <h2 id="footer-brand" className="mb-4 text-xl font-black tracking-[0.24em] text-[#f5dfd0] uppercase">Ateneo</h2>
+                        <p className="max-w-sm text-sm leading-7 text-slate-300">
+                            Smíšený pěvecký sbor Univerzity Palackého v Olomouci. Koncerty, soustředění a interní zázemí pro členy na jednom místě.
+                        </p>
+                    </section>
+                    <nav aria-labelledby="footer-nav">
+                        <h2 id="footer-nav" className="mb-4 text-sm font-semibold uppercase tracking-[0.24em] text-slate-400">Navigace</h2>
+                        <ul className="space-y-3 text-sm text-slate-300">
                             <li><Link href="/events" className="hover:text-white">Události</Link></li>
                             <li><Link href="/about" className="hover:text-white">O sboru</Link></li>
+                            <li><Link href="/gallery" className="hover:text-white">Galerie</Link></li>
                             <li><Link href="/login" className="hover:text-white">Intranet</Link></li>
                         </ul>
-                    </div>
-                    <div className="col-span-2">
-                        <h4 className="font-bold mb-4">Partneři</h4>
-                        <div className="grid grid-cols-4 gap-4 opacity-50">
-                            <div className="h-10 bg-white/10 rounded"></div>
-                            <div className="h-10 bg-white/10 rounded"></div>
-                            <div className="h-10 bg-white/10 rounded"></div>
-                            <div className="h-10 bg-white/10 rounded"></div>
-                        </div>
-                    </div>
+                    </nav>
+                    <section aria-labelledby="footer-focus">
+                        <h2 id="footer-focus" className="mb-4 text-sm font-semibold uppercase tracking-[0.24em] text-slate-400">Zaměření</h2>
+                        <ul className="grid grid-cols-2 gap-3">
+                            {['Koncerty', 'Soustředění', 'Sborový archiv', 'Členský intranet'].map((item) => (
+                                <li key={item} className="rounded-2xl border border-white/8 bg-white/5 px-4 py-3 text-sm text-slate-200">
+                                    {item}
+                                </li>
+                            ))}
+                        </ul>
+                    </section>
                 </div>
-                <div className="mt-12 text-center text-gray-600 text-xs">
+                <div className="mt-12 border-t border-white/8 pt-6 text-center text-xs text-slate-500">
                     &copy; {new Date().getFullYear()} Ateneo. Všechna práva vyhrazena.
                 </div>
             </div>

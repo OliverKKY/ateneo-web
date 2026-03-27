@@ -14,48 +14,58 @@ export default async function UsersPage() {
     })
 
     return (
-        <div>
-            <div className="flex justify-between items-center mb-6">
-                <h1 className="text-2xl font-bold text-gray-900">Správa uživatelů</h1>
+        <div className="space-y-8">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+                <div className="space-y-2">
+                    <p className="text-xs font-semibold uppercase tracking-[0.32em] text-[#b56a44]">
+                        Správa sboru
+                    </p>
+                    <h1 className="text-3xl font-semibold tracking-tight text-[#241612]">
+                        Správa uživatelů
+                    </h1>
+                    <p className="max-w-2xl text-sm leading-6 text-[#6c5148]">
+                        Přístupové role, hlasové zařazení i stav členství na jednom místě.
+                    </p>
+                </div>
                 <Link
                     href="/dashboard/users/create"
-                    className="bg-slate-900 text-white px-4 py-2 rounded-lg hover:bg-slate-800 shadow-md transition-colors"
+                    className="inline-flex items-center justify-center rounded-full bg-[linear-gradient(135deg,#2f1b16_0%,#51342b_100%)] px-5 py-3 text-sm font-semibold text-[#fff7f0] shadow-[0_16px_35px_rgba(47,27,22,0.18)] transition-transform duration-200 hover:-translate-y-0.5"
                 >
                     Přidat uživatele
                 </Link>
             </div>
 
-            <div className="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-200">
+            <div className="overflow-hidden rounded-[28px] border border-white/70 bg-[rgba(255,248,242,0.84)] shadow-[0_30px_60px_rgba(86,56,40,0.12)] backdrop-blur">
                 <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
+                <table className="min-w-full">
+                    <thead className="border-b border-[#ead8cd] bg-[rgba(255,255,255,0.65)]">
                         <tr>
-                            <th className="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Jméno</th>
-                            <th className="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Email</th>
-                            <th className="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Role</th>
-                            <th className="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Hlas</th>
-                            <th className="px-6 py-3 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">Akce</th>
+                            <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-[0.24em] text-[#8c6c61]">Jméno</th>
+                            <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-[0.24em] text-[#8c6c61]">Email</th>
+                            <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-[0.24em] text-[#8c6c61]">Role</th>
+                            <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-[0.24em] text-[#8c6c61]">Hlas</th>
+                            <th className="px-6 py-4 text-right text-xs font-semibold uppercase tracking-[0.24em] text-[#8c6c61]">Akce</th>
                         </tr>
                     </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
+                    <tbody className="divide-y divide-[#efdfd5] bg-transparent">
                         {users.map((user: Prisma.UserGetPayload<{ include: { role: true } }>) => {
                             const voice = VoiceSchema.safeParse(user.voice)
 
                             return (
-                            <tr key={user.id} className="hover:bg-gray-50">
-                                <td className="px-6 py-4 whitespace-nowrap">
-                                    <div className="text-sm font-medium text-gray-900">{user.firstName} {user.lastName}</div>
+                            <tr key={user.id} className="transition-colors hover:bg-[rgba(255,255,255,0.5)]">
+                                <td className="px-6 py-5 whitespace-nowrap">
+                                    <div className="text-sm font-semibold text-[#241612]">{user.firstName} {user.lastName}</div>
                                 </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{user.email}</td>
-                                <td className="px-6 py-4 whitespace-nowrap">
-                                    <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-slate-100 text-slate-800">
+                                <td className="px-6 py-5 whitespace-nowrap text-sm text-[#6c5148]">{user.email}</td>
+                                <td className="px-6 py-5 whitespace-nowrap">
+                                    <span className="inline-flex rounded-full border border-[#d7c0b3] bg-[rgba(255,255,255,0.72)] px-3 py-1 text-xs font-semibold text-[#5a3b31]">
                                         {user.role.name}
                                     </span>
                                 </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                                <td className="px-6 py-5 whitespace-nowrap text-sm text-[#6c5148]">
                                     {voice.success ? VOICE_LABELS[voice.data] : '-'}
                                 </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                <td className="px-6 py-5 whitespace-nowrap text-right text-sm font-medium">
                                     <UserManagementButtons id={user.id} />
                                 </td>
                             </tr>

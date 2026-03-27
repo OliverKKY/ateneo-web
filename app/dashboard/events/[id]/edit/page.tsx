@@ -31,8 +31,16 @@ export default async function EventEditPage({ params }: EventEditPageProps) {
     const eventType = EventTypeSchema.safeParse(event.type)
 
     return (
-        <div className="max-w-2xl mx-auto">
-            <h1 className="text-2xl font-bold mb-6">Upravit událost</h1>
+        <div className="mx-auto max-w-3xl space-y-6">
+            <div className="space-y-2">
+                <p className="text-xs font-semibold uppercase tracking-[0.32em] text-[#b56a44]">
+                    Kalendář
+                </p>
+                <h1 className="text-3xl font-semibold tracking-tight text-[#241612]">Upravit událost</h1>
+                <p className="max-w-2xl text-sm leading-6 text-[#6c5148]">
+                    Udržujte termíny, místo i přihlašování v souladu s aktuálním plánem sboru.
+                </p>
+            </div>
             <CreateEventForm
                 event={{
                     id: event.id,
