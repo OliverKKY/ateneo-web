@@ -1,0 +1,72 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           Int       @id @default(autoincrement())
+  firstName    String
+  lastName     String
+  birthDate    DateTime?
+  voice        String?   // Validated values: S, A, T, B
+  phone        String?
+  email        String    @unique
+  passwordHash String
+  isActive     Boolean   @default(true) // stav přístupu
+  gdprConsent  Boolean   @default(false)
+  
+  roleId       Int
+  role         Role      @relation(fields: [roleId], references: [id])
+  
+  eventSignups EventSignup[]
+
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
+
+model Role {
+  id    Int    @id @default(autoincrement())
+  name  String @unique // Administrátor, Zpěvák, Sbormistr, etc.
+  users User[]
+}
+
+model Event {
+  id              Int       @id @default(autoincrement())
+  name            String
+  location        String?
+  startDateTime   DateTime
+  endDateTime     DateTime?
+  signupOpenDate  DateTime?
+  signupCloseDate DateTime?
+  type            String   // Validated values: CONCERT, RETREAT
+
+  signups EventSignup[]
+}
+
+model EventSignup {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  eventId   Int
+  status    String   // Validated values: going, maybe, not_going
+  user      User     @relation(fields: [userId], references: [id])
+  event     Event    @relation(fields: [eventId], references: [id])
+  createdAt DateTime @default(now())
+
+  @@unique([userId, eventId])
+}
+
+model Song {
+  id          Int     @id @default(autoincrement())
+  title       String
+  author      String?
+  isActive    Boolean @default(true)
+  description String?
+  duration    String? // e.g. "3:45"
+  copyCount   Int     @default(0)
+  sheetType   String? // Validated values: SATB, SSA, SSAA, TTBB, SAB, UNISON, INSTRUMENTAL, OTHER
+  fileLinks   String? // Single canonical file URL
+}
