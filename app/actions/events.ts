@@ -3,7 +3,11 @@
 import { z } from 'zod'
 import { prisma } from '@/lib/db'
 import { requireRole, requireSession } from '@/lib/auth'
-import { handleActionError, validationError } from '@/lib/action-utils'
+import {
+    handleActionError,
+    parsePositiveIntegerId,
+    validationError,
+} from '@/lib/action-utils'
 import { getSignupAvailability } from '@/lib/event-signup'
 import {
     EVENT_MANAGER_ROLES,
@@ -115,6 +119,7 @@ export async function createEvent(
         return handleActionError<EventFields>(error, 'Chyba při vytváření události.')
     }
 
+    revalidatePath('/dashboard')
     revalidatePath('/dashboard/events')
     redirect('/dashboard/events')
 }
@@ -124,9 +129,9 @@ export async function updateEvent(
     _prevState: ActionState<EventFields> | undefined,
     formData: FormData,
 ) {
-    const parsedEventId = z.coerce.number().int().positive().safeParse(eventId)
+    const parsedEventId = parsePositiveIntegerId(eventId)
 
-    if (!parsedEventId.success) {
+    if (parsedEventId === null) {
         return { message: 'Neplatná událost.' }
     }
 
@@ -140,7 +145,7 @@ export async function updateEvent(
 
     try {
         await prisma.event.update({
-            where: { id: parsedEventId.data },
+            where: { id: parsedEventId },
             data: {
                 name,
                 location,
@@ -152,7 +157,9 @@ export async function updateEvent(
             },
         })
     } catch (error) {
-        return handleActionError<EventFields>(error, 'Chyba při aktualizaci události.')
+        return handleActionError<EventFields>(error, 'Chyba při aktualizaci události.', {
+            notFoundMessage: 'Událost nebyla nalezena.',
+        })
     }
 
     revalidatePath('/dashboard')
@@ -162,29 +169,33 @@ export async function updateEvent(
 }
 
 export async function deleteEvent(eventId: number) {
-    const parsedEventId = z.coerce.number().int().positive().safeParse(eventId)
+    const parsedEventId = parsePositiveIntegerId(eventId)
 
-    if (!parsedEventId.success) {
+    if (parsedEventId === null) {
         return { message: 'Neplatná událost.' }
     }
 
     try {
         await requireRole(EVENT_MANAGER_ROLES)
     } catch (error) {
-        return handleActionError(error, 'Událost nelze smazat.')
+        return handleActionError(error, 'Událost nelze smazat.', {
+            notFoundMessage: 'Událost nebyla nalezena.',
+        })
     }
 
     try {
         await prisma.$transaction([
             prisma.eventSignup.deleteMany({
-                where: { eventId: parsedEventId.data },
+                where: { eventId: parsedEventId },
             }),
             prisma.event.delete({
-                where: { id: parsedEventId.data },
+                where: { id: parsedEventId },
             }),
         ])
     } catch (error) {
-        return handleActionError(error, 'Událost nelze smazat.')
+        return handleActionError(error, 'Událost nelze smazat.', {
+            notFoundMessage: 'Událost nebyla nalezena.',
+        })
     }
 
     revalidatePath('/dashboard')
@@ -202,9 +213,9 @@ export async function eventSignup(eventId: number, status: string) {
         return handleActionError(error, 'Chyba při ukládání.')
     }
 
-    const parsedEventId = z.coerce.number().int().positive().safeParse(eventId)
+    const parsedEventId = parsePositiveIntegerId(eventId)
 
-    if (!parsedEventId.success) {
+    if (parsedEventId === null) {
         return { message: 'Neplatná událost.' }
     }
 
@@ -216,7 +227,7 @@ export async function eventSignup(eventId: number, status: string) {
 
     try {
         const event = await prisma.event.findUnique({
-            where: { id: parsedEventId.data },
+            where: { id: parsedEventId },
         })
 
         if (!event) {
@@ -233,16 +244,17 @@ export async function eventSignup(eventId: number, status: string) {
             where: {
                 userId_eventId: {
                     userId: Number(session.userId),
-                    eventId: parsedEventId.data
+                    eventId: parsedEventId
                 }
             },
             update: { status: parsedStatus.data },
             create: {
                 userId: Number(session.userId),
-                eventId: parsedEventId.data,
+                eventId: parsedEventId,
                 status: parsedStatus.data
             }
         })
+        revalidatePath('/dashboard')
         revalidatePath('/dashboard/events')
         return { message: 'Úspěšně uloženo.', success: true }
     } catch (error) {

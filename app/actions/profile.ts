@@ -46,18 +46,24 @@ export async function changePassword(
 
     const { currentPassword, newPassword } = result.data
 
-    const user = await prisma.user.findUnique({ where: { id: Number(session.userId) } })
-    if (!user) return { message: 'Uživatel nenalezen.' }
-
-    const isMatch = await verifyPassword(user.passwordHash, currentPassword)
-    if (!isMatch) {
-        return validationError<ChangePasswordFields>(
-            { currentPassword: ['Nesprávné současné heslo'] },
-            'Nesprávné současné heslo.',
-        )
-    }
-
     try {
+        const user = await prisma.user.findUnique({
+            where: { id: Number(session.userId) },
+        })
+
+        if (!user) {
+            return { message: 'Uživatel nenalezen.' }
+        }
+
+        const isMatch = await verifyPassword(user.passwordHash, currentPassword)
+
+        if (!isMatch) {
+            return validationError<ChangePasswordFields>(
+                { currentPassword: ['Nesprávné současné heslo'] },
+                'Nesprávné současné heslo.',
+            )
+        }
+
         const newHash = await hashPassword(newPassword)
         await prisma.user.update({
             where: { id: Number(session.userId) },

@@ -1,3 +1,5 @@
+import { ROLES } from './definitions'
+
 type SelfUpdateInput = {
     actorUserId: number
     targetUserId: number
@@ -21,7 +23,7 @@ export function validateSelfUpdateSafety({
         return 'Nemůžete deaktivovat právě přihlášený účet.'
     }
 
-    if (currentRoleName === 'Administrátor' && nextRoleName !== 'Administrátor') {
+    if (currentRoleName === ROLES.ADMIN && nextRoleName !== ROLES.ADMIN) {
         return 'Nemůžete odebrat administrátorskou roli právě přihlášenému účtu.'
     }
 

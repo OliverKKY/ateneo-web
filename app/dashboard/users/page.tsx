@@ -1,9 +1,14 @@
+import type { Metadata } from 'next'
 import { Prisma } from '@prisma/client'
 import { prisma } from '@/lib/db'
 import { requirePageRole } from '@/lib/auth'
 import { ADMIN_ONLY_ROLES, VOICE_LABELS, VoiceSchema } from '@/lib/definitions'
 import Link from 'next/link'
 import { UserManagementButtons } from '@/app/ui/users/buttons'
+
+export const metadata: Metadata = {
+    title: 'Uživatelé',
+}
 
 export default async function UsersPage() {
     await requirePageRole(ADMIN_ONLY_ROLES)
@@ -36,6 +41,11 @@ export default async function UsersPage() {
             </div>
 
             <div className="overflow-hidden rounded-[28px] border border-white/70 bg-[rgba(255,248,242,0.84)] shadow-[0_30px_60px_rgba(86,56,40,0.12)] backdrop-blur">
+                {users.length === 0 ? (
+                    <div className="p-6 text-sm text-[#6c5148]">
+                        Zatím nejsou založení žádní uživatelé.
+                    </div>
+                ) : (
                 <div className="overflow-x-auto">
                 <table className="min-w-full">
                     <thead className="border-b border-[#ead8cd] bg-[rgba(255,255,255,0.65)]">
@@ -74,6 +84,7 @@ export default async function UsersPage() {
                     </tbody>
                 </table>
                 </div>
+                )}
             </div>
         </div>
     )

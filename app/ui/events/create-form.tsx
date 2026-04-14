@@ -3,6 +3,7 @@
 import { useActionState } from 'react'
 import { createEvent, updateEvent } from '@/app/actions/events'
 import {
+    EVENT_TYPE,
     EVENT_TYPES,
     EVENT_TYPE_LABELS,
     type ActionState,
@@ -83,10 +84,10 @@ export default function CreateEventForm({ event }: EventFormProps) {
             </div>
 
             <div>
-                <label className="block text-sm font-medium text-[#5a3b31]">Typ</label>
+                    <label className="block text-sm font-medium text-[#5a3b31]">Typ</label>
                 <select
                     name="type"
-                    defaultValue={event?.type ?? EVENT_TYPES[0]}
+                    defaultValue={event?.type ?? EVENT_TYPE.CONCERT}
                     className="mt-2 block w-full rounded-2xl border border-[#d8c2b6] bg-[rgba(255,255,255,0.72)] px-4 py-3 text-[#241612] outline-none transition focus:border-[#b56a44] focus:ring-2 focus:ring-[#f0c7ac]"
                 >
                     {EVENT_TYPES.map((eventType) => (

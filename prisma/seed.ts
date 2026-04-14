@@ -1,21 +1,12 @@
 import { PrismaClient } from '@prisma/client'
 import { hashPassword } from '../lib/password'
+import { ROLES } from '../lib/definitions'
 import 'dotenv/config'
 
 const prisma = new PrismaClient()
 
 async function main() {
-    const roles = [
-        "Administrátor",
-        "Zpěvák",
-        "Sbormistr",
-        "Hlasový vedoucí",
-        "Dresscode lady",
-        "Předseda",
-        "Místopředseda",
-        "Notář",
-        "Manažer"
-    ]
+    const roles = Object.values(ROLES)
 
     console.log('Seeding roles...')
     for (const roleName of roles) {
@@ -26,7 +17,7 @@ async function main() {
         })
     }
 
-    const adminRole = await prisma.role.findUnique({ where: { name: "Administrátor" } })
+    const adminRole = await prisma.role.findUnique({ where: { name: ROLES.ADMIN } })
 
     if (adminRole) {
         console.log('Seeding admin user...')

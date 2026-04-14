@@ -5,14 +5,8 @@ import {
     type RoleName,
     type SessionPayload,
 } from './definitions'
+import { AuthorizationError } from './authorization-error'
 import { verifySession } from './session'
-
-export class AuthorizationError extends Error {
-    constructor(message = 'Nemáte oprávnění k této akci.') {
-        super(message)
-        this.name = 'AuthorizationError'
-    }
-}
 
 export function hasRole(
     role: RoleName,
@@ -58,4 +52,14 @@ export async function requirePageRole(
     }
 
     return session
+}
+
+export async function redirectIfAuthenticated(
+    redirectTo = '/dashboard',
+): Promise<void> {
+    const session = await verifySession()
+
+    if (session) {
+        redirect(redirectTo)
+    }
 }

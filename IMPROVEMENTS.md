@@ -1,259 +1,367 @@
-# Improvements
-
-This document captures cleanup and stabilization work needed to move the project from prototype quality to a safer, more maintainable internal application.
-
-## Priority 1: Security And Access Control
-
-### 1. Enforce authorization on every server action
-
-The current code relies too much on UI visibility and page-level redirects. That is not sufficient protection.
-
-Actions that need explicit server-side role checks:
-
-- `deleteUser` in [app/actions/users.ts](/home/oliver/Documents/ateneo-web/app/actions/users.ts)
-- `createUser` in [app/actions/users.ts](/home/oliver/Documents/ateneo-web/app/actions/users.ts)
-- `deleteSong` in [app/actions/songs.ts](/home/oliver/Documents/ateneo-web/app/actions/songs.ts)
-- `createSong` in [app/actions/songs.ts](/home/oliver/Documents/ateneo-web/app/actions/songs.ts)
-- `createEvent` in [app/actions/events.ts](/home/oliver/Documents/ateneo-web/app/actions/events.ts)
-- `eventSignup` in [app/actions/events.ts](/home/oliver/Documents/ateneo-web/app/actions/events.ts)
-
-Recommended cleanup:
-
-- Add a shared helper such as `requireSession()` and `requireRole([...])`.
-- Keep role definitions in one place instead of repeating string arrays inline.
-- Return structured authorization errors instead of silent no-ops.
-
-### 2. Lock down protected pages consistently
-
-Most protected dashboard routes are checked, but not all pages are equally strict.
-
-Known gap:
-
-- [app/dashboard/users/create/page.tsx](/home/oliver/Documents/ateneo-web/app/dashboard/users/create/page.tsx) has no role check.
-
-Recommended cleanup:
-
-- Add page-level guards to every admin-only route.
-- Treat page protection and action protection as separate requirements. Both are needed.
-
-### 3. Clean up secret handling
-
-Current session code assumes `JWT_SECRET` exists and uses it immediately.
-
-Relevant file:
-
-- [lib/session.ts](/home/oliver/Documents/ateneo-web/lib/session.ts)
-
-Recommended cleanup:
-
-- Validate `JWT_SECRET` during startup.
-- Fail fast with a clear error if required environment variables are missing.
-- Set `secure` cookies conditionally for production instead of forcing them in all environments.
-- Consider adding `maxAge` and explicit session typing for consistency.
-
-### 4. Treat the leaked secret artifact as compromised
-
-The `prisma` directory contains a malformed file with a secret embedded in the filename. That should be treated as an accidental leak.
-
-Recommended cleanup:
-
-- Delete the malformed file from the repository.
-- Rotate the JWT secret immediately.
-- Confirm `.env` files and local database files are ignored correctly.
-- Review shell history or scripts if this was caused by a command typo.
-
-## Priority 2: Repository Hygiene
-
-### 5. Stop tracking local runtime artifacts
-
-The repository currently contains local database files under `prisma/`.
-
-Recommended cleanup:
-
-- Remove tracked SQLite database files from version control.
-- Keep only schema, migrations, and optional seed scripts in the repo.
-- Ensure `.gitignore` excludes development DB files, `.env`, and generated output.
-
-### 6. Replace the default README
-
-The current README is still the stock Next.js template and does not describe the project.
-
-Relevant file:
-
-- [README.md](/home/oliver/Documents/ateneo-web/README.md)
-
-Recommended cleanup:
-
-- Describe what the app is for.
-- Document local setup, required environment variables, Prisma commands, seed flow, and login process.
-- Document the role model and expected user permissions.
-- Add deployment and backup notes if the app is intended for real use.
-
-## Priority 3: Data Model Cleanup
-
-### 7. Replace free-form strings with enums or validated values
-
-Several database fields currently allow arbitrary strings where the domain is clearly finite.
-
-Relevant file:
-
-- [prisma/schema.prisma](/home/oliver/Documents/ateneo-web/prisma/schema.prisma)
-
-Candidates:
-
-- `User.voice`
-- `Event.type`
-- `EventSignup.status`
-- `Song.sheetType`
-
-Recommended cleanup:
-
-- Use Prisma enums where possible.
-- Mirror those enums in Zod validation.
-- Reject invalid values before they reach the database.
-
-### 8. Normalize loosely structured song data
-
-`Song.fileLinks` is currently stored as a single string with a comment indicating it may contain serialized data.
-
-Recommended cleanup:
-
-- Decide whether this should be one URL, multiple URLs, or actual file metadata.
-- If multiple links are needed, create a separate related table instead of storing ad hoc serialized text.
-- Validate URL format in the form layer.
-
-### 9. Review unused or incomplete models
-
-The schema includes `Rehearsal`, but the app does not appear to use it.
-
-Recommended cleanup:
-
-- Either implement the model in the product or remove it until needed.
-- Avoid carrying unused schema and migration surface area.
-
-## Priority 4: Code Quality And Maintainability
-
-### 10. Make lint pass and keep it passing
-
-`npm run lint` currently fails.
-
-Current issues include:
-
-- `any` in server actions and page rendering
-- unused imports
-- unused caught errors
-- weak typing of action state
-
-Recommended cleanup:
-
-- Define shared action result types.
-- Replace `any` with concrete types from Prisma or local interfaces.
-- Remove unused imports and variables.
-- Add lint to CI before merging future changes.
-
-### 11. Reduce repeated authorization and validation logic
-
-The action files repeat the same patterns for session lookup, role checks, validation, revalidation, and redirects.
-
-Relevant files:
-
-- [app/actions/users.ts](/home/oliver/Documents/ateneo-web/app/actions/users.ts)
-- [app/actions/events.ts](/home/oliver/Documents/ateneo-web/app/actions/events.ts)
-- [app/actions/songs.ts](/home/oliver/Documents/ateneo-web/app/actions/songs.ts)
-- [app/actions/profile.ts](/home/oliver/Documents/ateneo-web/app/actions/profile.ts)
-
-Recommended cleanup:
-
-- Extract shared validation and authorization helpers.
-- Standardize action return shapes.
-- Centralize role constants.
-- Use typed form state instead of ad hoc objects.
-
-### 12. Improve error handling
-
-Most `catch` blocks return generic messages and discard useful detail.
-
-Recommended cleanup:
-
-- Handle known Prisma errors explicitly, especially unique constraint failures.
-- Log unexpected errors in a consistent place.
-- Return user-safe messages while preserving enough detail for debugging.
-
-## Priority 5: UX And Product Completeness
-
-### 13. Replace placeholder dashboard content with real workflows
-
-The dashboard currently shows generic counts and non-functional quick-action buttons.
-
-Relevant file:
-
-- [app/dashboard/page.tsx](/home/oliver/Documents/ateneo-web/app/dashboard/page.tsx)
-
-Recommended cleanup:
-
-- Link quick actions to actual destinations.
-- Show role-specific tasks with real data.
-- Prefer useful summaries such as upcoming events, pending signups, inactive users, or recent changes.
-
-### 14. Tighten event signup behavior
-
-The signup buttons optimistically update local state without handling server failures or validating allowed status values.
-
-Relevant file:
-
-- [app/ui/events/buttons.tsx](/home/oliver/Documents/ateneo-web/app/ui/events/buttons.tsx)
-
-Recommended cleanup:
-
-- Use a typed status enum.
-- Surface failure states to the user.
-- Disable updates outside the signup window if the event has open/close limits.
-- Consider showing current signup status more clearly.
-
-### 15. Make the visual system more consistent
-
-The app has a decent direction, but styling is still mixed between intentional pages and default scaffold remnants.
-
-Relevant files:
-
-- [app/login/page.tsx](/home/oliver/Documents/ateneo-web/app/login/page.tsx)
-- [app/globals.css](/home/oliver/Documents/ateneo-web/app/globals.css)
-
-Recommended cleanup:
-
-- Remove scaffold-era defaults such as the Arial fallback taking over the app.
-- Define a clearer shared color and spacing system.
-- Make public pages and dashboard pages feel like the same product.
-- Improve table responsiveness on smaller screens.
-
-## Priority 6: Testing And Operational Readiness
-
-### 16. Add basic automated tests
-
-The project currently has no visible test coverage.
-
-Recommended cleanup:
-
-- Add tests for login and logout.
-- Add tests for admin-only actions and pages.
-- Add tests for signup status updates.
-- Add tests for schema validation and password change flow.
-
-### 17. Add environment and deployment checks
-
-Recommended cleanup:
-
-- Add a startup check for required env vars.
-- Document production requirements for database, secrets, and cookie security.
-- If the app will be hosted publicly, move off SQLite unless there is a clear operational reason not to.
-
-## Suggested Order Of Work
-
-1. Remove tracked secrets and local DB artifacts.
-2. Rotate `JWT_SECRET` and harden env validation.
-3. Add centralized authorization helpers and fix missing role checks.
-4. Make lint pass.
-5. Tighten the Prisma schema and Zod validation.
-6. Replace README with real project documentation.
-7. Improve dashboard and signup UX.
-8. Add a basic automated test suite.
+# Ateneo Web Improvement Roadmap
+
+This document tracks how the new `ateneo-web` app should grow into a familiar but improved replacement for the old `OliverKKY/choirify` application.
+
+The goal is not to copy Choirify. The goal is to preserve the useful choir workflows while keeping the new app simpler, safer, and easier to maintain.
+
+## Current Baseline
+
+The replacement already has a stronger technical foundation than the old app:
+
+- Next.js App Router instead of the old ASP.NET MVC controller/view stack.
+- Prisma-backed data model with migrations.
+- Zod validation at action boundaries.
+- Centralized session and authorization helpers in `lib/`.
+- Centralized roles, labels, and bounded values in `lib/definitions.ts`.
+- Focused server actions for users, events, songs, auth, and profile changes.
+- Public pages separated from the internal dashboard.
+- Existing tests for helper-level behavior.
+
+The current app already supports:
+
+- login and signed session cookies
+- role-aware dashboard
+- user CRUD
+- event CRUD
+- event signup with `Jdu`, `Možná`, `Nejdu`
+- song archive CRUD
+- profile password change
+- basic public home/about/events/gallery pages
+
+## What Is Better Than Old Choirify
+
+- The codebase is smaller and easier to reason about.
+- Authorization is centralized instead of spread across many controllers.
+- Form validation is explicit and close to database writes.
+- The dashboard is clearer and role-aware.
+- The event signup workflow is faster for ordinary singers.
+- The schema avoids carrying every historical field before it is confirmed as needed.
+- The app has modern quality gates: tests, lint, TypeScript, Prisma validation, and build checks.
+
+## Main Gaps Against Old Choirify
+
+Old Choirify had a richer choir domain model. The current app is a good intranet starter, but not yet a full replacement.
+
+Missing or incomplete areas:
+
+- rehearsals
+- rehearsal attendance
+- rehearsal-song planning
+- detailed singer/member profiles
+- choirmaster profiles
+- news/announcements
+- multiple links per event and song
+- event descriptions, organizers, and images
+- event detail pages
+- registration comments and absence reasons
+- dress order tracking
+- attendance tracking separate from signup intent
+- event-song relationships
+- sheet ownership/order tracking per singer and song
+- registration export for admins
+- self-registration, invite, email confirmation, and password reset flows
+- multi-role users
+- soft delete/archive behavior
+- stronger database constraints for bounded values
+
+## Product Direction
+
+Keep the new app focused. Restore old Choirify concepts only when they still matter to Ateneo users.
+
+Prefer these principles:
+
+- Improve the workflow instead of reproducing old screens.
+- Keep members' daily flows simple.
+- Keep admin workflows explicit and auditable.
+- Treat personal data fields as deliberate product decisions.
+- Add database structure before building complicated UI on top of weak data.
+- Preserve server-side authorization for every privileged route and action.
+
+## Implementation Checklist
+
+Work through this list one feature area at a time. Each item should include schema changes, server actions, UI, authorization, tests, and seed/migration updates where relevant.
+
+### 0. Preserve The Current Foundation
+
+- [x] Keep `Next.js`, `Prisma`, `Zod`, and server actions as the core architecture.
+- [x] Keep shared roles and bounded values in `lib/definitions.ts`.
+- [x] Keep auth/session checks centralized in `lib/auth.ts` and `lib/session.ts`.
+- [x] Keep page guards and action guards separate.
+- [x] Keep `npm test`, `npm run lint`, `npx tsc --noEmit`, and `npm run build` passing.
+- [ ] Add a short product README section explaining which old Choirify features are intentionally not implemented yet.
+- [ ] Add smoke coverage for protected dashboard routes, not only helper functions.
+
+### 1. Harden Existing Core Models
+
+- [ ] Convert bounded string fields to Prisma enums or equivalent database constraints:
+  - [ ] `User.voice`
+  - [ ] `Event.type`
+  - [ ] `EventSignup.status`
+  - [ ] `Song.sheetType`
+- [ ] Align Prisma enum values with `lib/definitions.ts`.
+- [ ] Add a safe migration for existing data.
+- [ ] Add tests proving invalid bounded values are rejected before database writes.
+- [ ] Decide whether hard deletes should remain acceptable for users, events, and songs.
+- [ ] If not, add soft delete/archive fields and update queries to hide archived records by default.
+
+### 2. Improve Event Details
+
+Old Choirify events had more context than the current model.
+
+- [ ] Add event fields:
+  - [ ] `description`
+  - [ ] `organizer`
+  - [ ] `imageUrl`
+  - [ ] visibility/published state if public event display should be controlled
+- [ ] Update event create/edit forms.
+- [ ] Update public events page to show richer event details without exposing internal signup data.
+- [ ] Add internal event detail route.
+- [ ] Add validation for description length, organizer length, image URL, and date ranges.
+- [ ] Add tests for create/update validation and authorization.
+
+### 3. Add Event Registration Details
+
+Old Choirify registration included an answer, comment, dress order, and registration timestamp. The current signup status is simpler but loses useful admin information.
+
+- [ ] Extend `EventSignup` with:
+  - [ ] `comment`
+  - [ ] `dressOrder`
+  - [ ] `updatedAt`
+- [ ] Decide whether `maybe` stays or maps to a more old-style yes/no answer.
+- [ ] Require an absence reason when a singer chooses `Nejdu`, if Ateneo wants the old behavior.
+- [ ] Add dress order options only for relevant voice groups, if still needed.
+- [ ] Update signup UI to allow optional comment and dress selection.
+- [ ] Keep the quick one-click signup path simple for common cases.
+- [ ] Add tests for signup window rules, comment validation, and updating an existing signup.
+
+### 4. Add Event Signup Admin View
+
+Admins need the operational view old Choirify provided.
+
+- [ ] Add per-event admin detail page.
+- [ ] Show signup counts by status.
+- [ ] Show singers who answered `Jdu`, `Možná`, `Nejdu`.
+- [ ] Show members with no answer.
+- [ ] Filter by voice group and status.
+- [ ] Show comments and dress orders.
+- [ ] Add CSV export first.
+- [ ] Add XLSX export later if CSV is not enough.
+- [ ] Add authorization tests for event managers vs singers.
+
+### 5. Add Attendance Tracking
+
+Signup intent and actual attendance should be separate concepts.
+
+- [ ] Add `EventAttendance` model.
+- [ ] Link attendance to event and user/member.
+- [ ] Add admin UI to mark actual attendance.
+- [ ] Keep attendance hidden from ordinary members unless there is a clear need.
+- [ ] Add summary counts on event admin detail.
+- [ ] Add tests for attendance creation/update permissions.
+
+### 6. Expand Member Profiles Carefully
+
+Old Choirify had detailed `Singer` and `Choirmaster` entities. The current app merges account and member fields into `User`.
+
+- [ ] Decide whether to keep one `User` model or split `MemberProfile` from login credentials.
+- [ ] Add confirmed member fields only if needed:
+  - [ ] birth date
+  - [ ] detailed voice group: `S1`, `S2`, `A1`, `A2`, `T1`, `T2`, `B1`, `B2`
+  - [ ] phone
+  - [ ] address
+  - [ ] profile image URL
+  - [ ] GDPR consent timestamp
+- [ ] Decide whether ID card and passport numbers are still necessary.
+- [ ] If ID/passport fields are added, document why they are needed and restrict access tightly.
+- [ ] Update user admin forms and profile page.
+- [ ] Let members update safe personal fields themselves if desired.
+- [ ] Add tests for self-update permissions and admin-only sensitive fields.
+
+### 7. Add Rehearsals
+
+Rehearsals were a first-class feature in Choirify.
+
+- [ ] Add `Rehearsal` model:
+  - [ ] date/time
+  - [ ] location
+  - [ ] description
+  - [ ] optional published state
+- [ ] Add rehearsal list page for members.
+- [ ] Add rehearsal create/edit/delete for authorized roles.
+- [ ] Add dashboard card for upcoming rehearsals.
+- [ ] Add tests for rehearsal CRUD authorization.
+
+### 8. Add Rehearsal Attendance
+
+- [ ] Add `RehearsalAttendance` model.
+- [ ] Add admin UI to mark rehearsal attendance.
+- [ ] Add optional member self-indication only if the choir needs it.
+- [ ] Add attendance summaries.
+- [ ] Add tests around attendance permissions.
+
+### 9. Relate Songs To Events And Rehearsals
+
+Old Choirify could connect songs to events and rehearsals. That is important for planning.
+
+- [ ] Add `EventSong` join model.
+- [ ] Add `RehearsalSong` join model.
+- [ ] Add UI to attach songs to an event.
+- [ ] Add UI to attach songs to a rehearsal.
+- [ ] Show planned songs on event/rehearsal detail pages.
+- [ ] Show upcoming uses on song detail pages.
+- [ ] Add tests for attach/remove permissions.
+
+### 10. Improve Song Archive And Sheet Tracking
+
+The current song archive is useful, but old Choirify also tracked sheet ownership/order status per singer.
+
+- [ ] Decide whether `Song.isActive` is enough or whether `current/archive` should be explicit in the UI.
+- [ ] Add multiple song links instead of a single `fileLinks` string.
+- [ ] Add `SongLink` or general `Link` model.
+- [ ] Add `SingerSongSheetStatus` model with statuses similar to:
+  - [ ] no copy
+  - [ ] ordered
+  - [ ] has copy
+- [ ] Add singer-facing controls for requesting/confirming sheets if still needed.
+- [ ] Add admin controls for distributing/ordering sheets for many singers.
+- [ ] Add sheet status overview per song.
+- [ ] Add tests for sheet status transitions and permissions.
+
+### 11. Add Shared Links
+
+Old Choirify allowed multiple links on events and songs.
+
+- [ ] Add a generic `Link` model or separate `EventLink` and `SongLink` models.
+- [ ] Store URL, label/description, ordering, created/updated timestamps.
+- [ ] Add create/remove link actions.
+- [ ] Add URL validation.
+- [ ] Show links on public event details only when intended for public viewing.
+- [ ] Add tests for link authorization and validation.
+
+### 12. Add News Or Announcements
+
+Old Choirify had `News`. Decide whether this is still useful or whether public CMS/social channels cover it.
+
+- [ ] Decide public news, internal announcements, or both.
+- [ ] Add `Announcement` model if needed:
+  - [ ] title
+  - [ ] body
+  - [ ] image URL
+  - [ ] author
+  - [ ] published state
+  - [ ] created/updated timestamps
+- [ ] Add dashboard announcement list.
+- [ ] Add public news page only if the choir wants website news.
+- [ ] Add admin/editor permissions.
+- [ ] Add tests for publish/edit permissions.
+
+### 13. Improve Account Lifecycle
+
+The current app assumes admin-created users. Old Choirify had registration, email confirmation, forgot password, and reset password.
+
+- [ ] Decide onboarding model:
+  - [ ] admin-created accounts only
+  - [ ] invite links
+  - [ ] public self-registration with approval
+- [ ] Add password reset flow.
+- [ ] Add email sending configuration.
+- [ ] Add email verification only if email ownership matters for login or notifications.
+- [ ] Add account lockout or rate limiting for repeated failed logins.
+- [ ] Add tests for token expiry and invalid token handling.
+
+### 14. Revisit Roles And Permissions
+
+Old Choirify had many roles: admin, singer, choirmaster, voice leader, dresscode leader, chairman, vice chairman, music distributor, manager.
+
+- [ ] Decide whether one role per user is enough.
+- [ ] If users need several responsibilities, add many-to-many user roles.
+- [ ] Map old roles to current Czech role names.
+- [ ] Define permission groups in `lib/definitions.ts`, not inline in pages.
+- [ ] Add route/action tests for each permission group.
+- [ ] Update seed data with representative users for each role.
+
+### 15. Improve Dashboard Familiarity
+
+The dashboard should feel familiar to Choirify users without copying the old UI.
+
+- [ ] Add dashboard sections for:
+  - [ ] upcoming events
+  - [ ] upcoming rehearsals
+  - [ ] my event answers
+  - [ ] songs I need sheets for
+  - [ ] admin alerts: missing registrations, upcoming signup deadlines
+- [ ] Keep role-specific quick actions.
+- [ ] Add empty states that tell users what to do next.
+- [ ] Add tests for dashboard data helpers where practical.
+
+### 16. Data Migration From Old Choirify
+
+Only needed if real old data will be imported.
+
+- [ ] Export old Choirify data to a neutral format.
+- [ ] Map old `Singer`/`Choirmaster`/`ApplicationUser` records to the new user/profile model.
+- [ ] Map old event types to new event types.
+- [ ] Map old sheet types to new sheet types.
+- [ ] Map old registrations and comments to `EventSignup`.
+- [ ] Map old sheet statuses to the new sheet tracking model.
+- [ ] Write an idempotent import script.
+- [ ] Run import against a disposable database first.
+- [ ] Add post-import checks for counts and orphaned records.
+
+## Technical Quality Checklist
+
+Apply these checks to every feature above:
+
+- [ ] Authorization is enforced server-side in actions and page loaders.
+- [ ] Validation happens before database writes.
+- [ ] Bounded values are defined once in `lib/definitions.ts`.
+- [ ] Prisma schema, Zod schemas, labels, and UI options agree.
+- [ ] Migrations preserve existing data.
+- [ ] Seed data is updated when new required models are added.
+- [ ] Tests cover success, validation failure, and authorization failure.
+- [ ] `npm test` passes.
+- [ ] `npm run lint` passes.
+- [ ] `npx tsc --noEmit` passes.
+- [ ] `npm run build` passes when the change affects runtime/build behavior.
+
+## Recommended Implementation Order
+
+1. Harden existing bounded fields and delete/archive behavior.
+2. Add richer event details.
+3. Add richer event signup data.
+4. Add event signup admin view and export.
+5. Expand member profiles.
+6. Add rehearsals.
+7. Add rehearsal attendance.
+8. Add event-song and rehearsal-song planning.
+9. Add sheet tracking.
+10. Add links for events and songs.
+11. Add announcements if still useful.
+12. Add account lifecycle improvements.
+13. Revisit multi-role permissions only when a real user needs multiple responsibilities.
+
+## Notes From Old Choirify Comparison
+
+The old repository inspected was `OliverKKY/choirify` at commit `ce76370`.
+
+Useful old concepts to preserve:
+
+- event registration deadlines
+- per-event registration overview
+- registration comments
+- dress orders
+- rehearsal management
+- song planning for events/rehearsals
+- sheet copy tracking
+- admin exports
+- role-specific navigation
+
+Concepts to reconsider before copying:
+
+- storing ID card and passport numbers
+- public self-registration
+- separate singer and choirmaster entities
+- many small role-specific pages
+- hard dependency on a specific old UI layout
+
+The replacement should stay simpler than Choirify unless a specific workflow proves the extra complexity is worth it.

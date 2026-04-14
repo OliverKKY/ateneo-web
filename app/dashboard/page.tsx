@@ -1,6 +1,8 @@
+import type { Metadata } from 'next'
 import Link from 'next/link'
 import { prisma } from '@/lib/db'
 import { hasRole, requireSession } from '@/lib/auth'
+import { formatCzechDate, formatCzechDateTime } from '@/lib/date'
 import { getSignupAvailability } from '@/lib/event-signup'
 import { getDashboardQuickActions } from '@/lib/dashboard'
 import {
@@ -9,26 +11,15 @@ import {
     EVENT_TYPE_LABELS,
     EventTypeSchema,
     ROLES,
-    SIGNUP_STATUSES,
+    SIGNUP_STATUS,
+    SIGNUP_STATUS_LABELS,
     SONG_DELETE_ROLES,
     SONG_EDITOR_ROLES,
     SignupStatusSchema,
 } from '@/lib/definitions'
 
-function formatEventDate(date: Date) {
-    return new Date(date).toLocaleDateString('cs-CZ', {
-        day: 'numeric',
-        month: 'long',
-        hour: '2-digit',
-        minute: '2-digit',
-    })
-}
-
-function formatShortDate(date: Date) {
-    return new Date(date).toLocaleDateString('cs-CZ', {
-        day: 'numeric',
-        month: 'long',
-    })
+export const metadata: Metadata = {
+    title: 'Přehled',
 }
 
 export default async function DashboardPage() {
@@ -82,17 +73,17 @@ export default async function DashboardPage() {
     ])
 
     const quickActions = getDashboardQuickActions(role)
-    const nextEventLabel = nextEvent ? formatEventDate(nextEvent.startDateTime) : 'Zatím není naplánovaná žádná další událost.'
+    const nextEventLabel = nextEvent ? formatCzechDateTime(nextEvent.startDateTime) : 'Zatím není naplánovaná žádná další událost.'
     const signupOverview = {
-        going: currentUserSignups.filter((signup) => signup.status === SIGNUP_STATUSES[0]).length,
-        maybe: currentUserSignups.filter((signup) => signup.status === SIGNUP_STATUSES[1]).length,
-        notGoing: currentUserSignups.filter((signup) => signup.status === SIGNUP_STATUSES[2]).length,
+        going: currentUserSignups.filter((signup) => signup.status === SIGNUP_STATUS.GOING).length,
+        maybe: currentUserSignups.filter((signup) => signup.status === SIGNUP_STATUS.MAYBE).length,
+        notGoing: currentUserSignups.filter((signup) => signup.status === SIGNUP_STATUS.NOT_GOING).length,
     }
 
     const overviewStats = [
         {
             label: 'Další událost',
-            value: nextEvent ? formatShortDate(nextEvent.startDateTime) : 'Bez termínu',
+            value: nextEvent ? formatCzechDate(nextEvent.startDateTime) : 'Bez termínu',
             detail: nextEvent ? nextEvent.name : 'Naplánujte další akci v kalendáři.',
         },
         {
@@ -204,7 +195,7 @@ export default async function DashboardPage() {
                                                 <span className="rounded-full bg-[#f0d8ca] px-2.5 py-1 text-xs font-semibold text-[#6f4634]">
                                                     {eventType.success ? EVENT_TYPE_LABELS[eventType.data] : event.type}
                                                 </span>
-                                                <span>{formatEventDate(event.startDateTime)}</span>
+                                                <span>{formatCzechDateTime(event.startDateTime)}</span>
                                             </div>
                                             <h3 className="mt-2 text-lg font-semibold text-[#241612]">{event.name}</h3>
                                             <p className="text-sm text-[#6c5148]">{event.location || 'Místo bude doplněno.'}</p>
@@ -212,7 +203,7 @@ export default async function DashboardPage() {
                                         <div className="text-sm text-[#6c5148] md:max-w-[16rem] md:text-right">
                                             {userSignup.success && (
                                                 <span>
-                                                    Moje odpověď: <strong className="text-[#241612]">{userSignup.data}</strong>
+                                                    Moje odpověď: <strong className="text-[#241612]">{SIGNUP_STATUS_LABELS[userSignup.data]}</strong>
                                                 </span>
                                             )}
                                             {!userSignup.success && availability.reason && <span>{availability.reason}</span>}
@@ -238,10 +229,10 @@ export default async function DashboardPage() {
 
                                     return (
                                         <div key={signup.id} className="rounded-2xl border border-[#ead8cd] bg-white/55 p-4">
-                                            <div className="text-sm text-[#7a5d52]">{formatShortDate(signup.event.startDateTime)}</div>
+                                            <div className="text-sm text-[#7a5d52]">{formatCzechDate(signup.event.startDateTime)}</div>
                                             <div className="mt-1 font-semibold text-[#241612]">{signup.event.name}</div>
                                             <div className="mt-1 text-sm text-[#6c5148]">
-                                                Stav: {signupStatus.success ? signupStatus.data : signup.status}
+                                                Stav: {signupStatus.success ? SIGNUP_STATUS_LABELS[signupStatus.data] : signup.status}
                                             </div>
                                         </div>
                                     )

@@ -1,5 +1,10 @@
+import type { Metadata } from 'next'
 import { PublicFooter } from '@/app/ui/public/footer'
 import { PublicNavbar } from '@/app/ui/public/navbar'
+
+export const metadata: Metadata = {
+    title: 'Galerie',
+}
 
 export default function GalleryPage() {
     return (

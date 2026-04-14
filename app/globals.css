@@ -8,13 +8,15 @@
   --border-subtle: rgba(31, 41, 55, 0.08);
   --accent-ink: #1e3a46;
   --accent-warm: #c56a3d;
+  --font-sans: "Avenir Next", Avenir, "Segoe UI", sans-serif;
+  --font-mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
 }
 
 * {
@@ -32,7 +34,7 @@ html:focus-within {
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-geist-sans), sans-serif;
+  font-family: var(--font-sans);
   min-height: 100vh;
   background-image:
     radial-gradient(circle at top left, rgba(197, 106, 61, 0.14), transparent 28%),

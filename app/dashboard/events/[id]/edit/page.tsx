@@ -1,8 +1,13 @@
+import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import CreateEventForm from '@/app/ui/events/create-form'
 import { prisma } from '@/lib/db'
 import { requirePageRole } from '@/lib/auth'
 import { EVENT_MANAGER_ROLES, EventTypeSchema } from '@/lib/definitions'
+
+export const metadata: Metadata = {
+    title: 'Upravit událost',
+}
 
 type EventEditPageProps = {
     params: Promise<{

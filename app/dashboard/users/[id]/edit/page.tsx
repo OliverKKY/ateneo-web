@@ -1,8 +1,13 @@
+import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import CreateUserForm from '@/app/ui/users/create-form'
 import { prisma } from '@/lib/db'
 import { requirePageRole } from '@/lib/auth'
 import { ADMIN_ONLY_ROLES, VoiceSchema } from '@/lib/definitions'
+
+export const metadata: Metadata = {
+    title: 'Upravit uživatele',
+}
 
 type UserEditPageProps = {
     params: Promise<{

@@ -3,7 +3,11 @@
 import { z } from 'zod'
 import { prisma } from '@/lib/db'
 import { requireRole } from '@/lib/auth'
-import { handleActionError, validationError } from '@/lib/action-utils'
+import {
+    handleActionError,
+    parsePositiveIntegerId,
+    validationError,
+} from '@/lib/action-utils'
 import {
     validateDeleteUserSafety,
     validateSelfUpdateSafety,
@@ -133,6 +137,7 @@ export async function createUser(
         )
     }
 
+    revalidatePath('/dashboard')
     revalidatePath('/dashboard/users')
     redirect('/dashboard/users')
 }
@@ -142,9 +147,9 @@ export async function updateUser(
     _prevState: ActionState<UserFields> | undefined,
     formData: FormData,
 ) {
-    const parsedUserId = z.coerce.number().int().positive().safeParse(userId)
+    const parsedUserId = parsePositiveIntegerId(userId)
 
-    if (!parsedUserId.success) {
+    if (parsedUserId === null) {
         return { message: 'Neplatný uživatel.' }
     }
 
@@ -173,7 +178,7 @@ export async function updateUser(
         }
 
         const currentUser = await prisma.user.findUnique({
-            where: { id: parsedUserId.data },
+            where: { id: parsedUserId },
             include: { role: true },
         })
 
@@ -183,7 +188,7 @@ export async function updateUser(
 
         const selfUpdateError = validateSelfUpdateSafety({
             actorUserId: Number(authResult.session.userId),
-            targetUserId: parsedUserId.data,
+            targetUserId: parsedUserId,
             nextIsActive: isActive,
             currentRoleName: currentUser.role.name,
             nextRoleName: role.name,
@@ -217,13 +222,14 @@ export async function updateUser(
         }
 
         await prisma.user.update({
-            where: { id: parsedUserId.data },
+            where: { id: parsedUserId },
             data,
         })
     } catch (error) {
         return handleActionError<UserFields>(
             error,
             'Chyba při aktualizaci uživatele.',
+            { notFoundMessage: 'Uživatel nenalezen.' },
         )
     }
 
@@ -233,6 +239,12 @@ export async function updateUser(
 }
 
 export async function deleteUser(userId: number) {
+    const parsedUserId = parsePositiveIntegerId(userId)
+
+    if (parsedUserId === null) {
+        return { message: 'Neplatný uživatel.' }
+    }
+
     let session: SessionPayload
 
     try {
@@ -240,17 +252,20 @@ export async function deleteUser(userId: number) {
 
         const deleteSafetyError = validateDeleteUserSafety(
             Number(session.userId),
-            userId,
+            parsedUserId,
         )
 
         if (deleteSafetyError) {
             return { message: deleteSafetyError }
         }
 
-        await prisma.user.delete({ where: { id: userId } })
+        await prisma.user.delete({ where: { id: parsedUserId } })
+        revalidatePath('/dashboard')
         revalidatePath('/dashboard/users')
         return { success: true }
     } catch (error) {
-        return handleActionError(error, 'Nelze smazat uživatele.')
+        return handleActionError(error, 'Nelze smazat uživatele.', {
+            notFoundMessage: 'Uživatel nenalezen.',
+        })
     }
 }

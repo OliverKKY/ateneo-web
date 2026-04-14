@@ -1,5 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
+import { ROLES } from '@/lib/definitions'
 import {
     validateDeleteUserSafety,
     validateSelfUpdateSafety,
@@ -10,8 +11,8 @@ test('self update rejects deactivating the current account', () => {
         actorUserId: 1,
         targetUserId: 1,
         nextIsActive: false,
-        currentRoleName: 'Administrátor',
-        nextRoleName: 'Administrátor',
+        currentRoleName: ROLES.ADMIN,
+        nextRoleName: ROLES.ADMIN,
     })
 
     assert.equal(result, 'Nemůžete deaktivovat právě přihlášený účet.')
@@ -22,8 +23,8 @@ test('self update rejects removing own admin role', () => {
         actorUserId: 1,
         targetUserId: 1,
         nextIsActive: true,
-        currentRoleName: 'Administrátor',
-        nextRoleName: 'Zpěvák',
+        currentRoleName: ROLES.ADMIN,
+        nextRoleName: ROLES.SINGER,
     })
 
     assert.equal(result, 'Nemůžete odebrat administrátorskou roli právě přihlášenému účtu.')
@@ -34,8 +35,8 @@ test('editing another account remains allowed', () => {
         actorUserId: 1,
         targetUserId: 2,
         nextIsActive: false,
-        currentRoleName: 'Administrátor',
-        nextRoleName: 'Zpěvák',
+        currentRoleName: ROLES.ADMIN,
+        nextRoleName: ROLES.SINGER,
     })
 
     assert.equal(result, null)

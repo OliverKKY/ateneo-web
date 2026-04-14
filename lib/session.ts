@@ -1,7 +1,11 @@
 import 'server-only'
 import { SignJWT, jwtVerify } from 'jose'
 import { cookies } from 'next/headers'
-import { SessionPayload } from './definitions'
+import type { NextRequest } from 'next/server'
+import {
+    RoleSchema,
+    SessionPayloadSchema,
+} from './definitions'
 
 function getJwtSecret(): string {
     const secretKey = process.env.JWT_SECRET
@@ -13,17 +17,25 @@ function getJwtSecret(): string {
     return secretKey
 }
 
-const encodedKey = new TextEncoder().encode(getJwtSecret())
 const SESSION_COOKIE_NAME = 'session'
 const SESSION_MAX_AGE = 7 * 24 * 60 * 60
+const SESSION_DURATION_MS = SESSION_MAX_AGE * 1000
+
+function getEncodedKey() {
+    return new TextEncoder().encode(getJwtSecret())
+}
 
 export async function createSession(userId: number, role: string) {
-    const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
-    const session = await new SignJWT({ userId, role, expiresAt })
+    const expiresAt = new Date(Date.now() + SESSION_DURATION_MS)
+    const session = await new SignJWT({
+        userId,
+        role: RoleSchema.parse(role),
+        expiresAt,
+    })
         .setProtectedHeader({ alg: 'HS256' })
         .setIssuedAt()
         .setExpirationTime('7d')
-        .sign(encodedKey)
+        .sign(getEncodedKey())
 
     const cookieStore = await cookies()
     cookieStore.set(SESSION_COOKIE_NAME, session, {
@@ -36,22 +48,31 @@ export async function createSession(userId: number, role: string) {
     })
 }
 
-export async function verifySession() {
-    const cookieStore = await cookies()
-    const session = cookieStore.get(SESSION_COOKIE_NAME)?.value
-
+async function verifySessionToken(session: string | undefined) {
     if (!session) {
         return null
     }
+
+    const encodedKey = getEncodedKey()
 
     try {
         const { payload } = await jwtVerify(session, encodedKey, {
             algorithms: ['HS256'],
         })
-        return payload as SessionPayload
+        const parsedPayload = SessionPayloadSchema.safeParse(payload)
+
+        return parsedPayload.success ? parsedPayload.data : null
     } catch {
         return null
     }
+}
+
+export async function verifySession(request?: NextRequest) {
+    const session = request
+        ? request.cookies.get(SESSION_COOKIE_NAME)?.value
+        : (await cookies()).get(SESSION_COOKIE_NAME)?.value
+
+    return verifySessionToken(session)
 }
 
 export async function deleteSession() {

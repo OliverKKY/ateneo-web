@@ -1,7 +1,12 @@
+import type { Metadata } from 'next'
 import { prisma } from '@/lib/db'
 import CreateUserForm from '@/app/ui/users/create-form'
 import { requirePageRole } from '@/lib/auth'
 import { ADMIN_ONLY_ROLES } from '@/lib/definitions'
+
+export const metadata: Metadata = {
+    title: 'Nový uživatel',
+}
 
 export default async function CreateUserPage() {
     await requirePageRole(ADMIN_ONLY_ROLES)

@@ -1,13 +1,16 @@
+import type { Metadata } from 'next'
 import { prisma } from '@/lib/db'
-import { verifySession } from '@/lib/session'
-import { hasRole } from '@/lib/auth'
+import { hasRole, requireSession } from '@/lib/auth'
 import { SheetTypeSchema, SHEET_TYPE_LABELS, SONG_EDITOR_ROLES } from '@/lib/definitions'
 import Link from 'next/link'
 import { SongManagementButtons } from '@/app/ui/songs/buttons'
 
+export const metadata: Metadata = {
+    title: 'Skladby',
+}
+
 export default async function SongsPage() {
-    const session = await verifySession()
-    if (!session) return null
+    const session = await requireSession()
     const role = session.role
     const canEdit = hasRole(role, SONG_EDITOR_ROLES)
 
@@ -40,6 +43,11 @@ export default async function SongsPage() {
             </div>
 
             <div className="overflow-hidden rounded-[28px] border border-white/70 bg-[rgba(255,248,242,0.84)] shadow-[0_30px_60px_rgba(86,56,40,0.12)] backdrop-blur">
+                {songs.length === 0 ? (
+                    <div className="p-6 text-sm text-[#6c5148]">
+                        V archivu zatím nejsou žádné skladby.
+                    </div>
+                ) : (
                 <div className="overflow-x-auto">
                 <table className="min-w-full">
                     <thead className="border-b border-[#ead8cd] bg-[rgba(255,255,255,0.65)]">
@@ -75,6 +83,7 @@ export default async function SongsPage() {
                     </tbody>
                 </table>
                 </div>
+                )}
             </div>
         </div>
     )

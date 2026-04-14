@@ -1,6 +1,14 @@
+import type { Metadata } from 'next'
+import { redirectIfAuthenticated } from '@/lib/auth'
 import LoginForm from '@/app/ui/login-form'
 
-export default function LoginPage() {
+export const metadata: Metadata = {
+    title: 'Přihlášení',
+}
+
+export default async function LoginPage() {
+    await redirectIfAuthenticated()
+
     return (
         <main id="main-content" className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#16303a] px-4 text-white">
             <a href="#login-panel" className="skip-link">Přeskočit na přihlášení</a>

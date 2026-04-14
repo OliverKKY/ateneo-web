@@ -1,6 +1,6 @@
-import { Prisma } from '@prisma/client'
-import { AuthorizationError } from './auth'
+import { z } from 'zod'
 import { type ActionState } from './definitions'
+import { normalizeActionError } from './action-errors'
 
 export function validationError<TField extends string>(
     errors: Partial<Record<TField, string[]>>,
@@ -12,20 +12,24 @@ export function validationError<TField extends string>(
     }
 }
 
+const PositiveIntegerSchema = z.coerce.number().int().positive()
+
+export function parsePositiveIntegerId(value: unknown): number | null {
+    const result = PositiveIntegerSchema.safeParse(value)
+
+    return result.success ? result.data : null
+}
+
 export function handleActionError<TField extends string>(
     error: unknown,
     fallbackMessage: string,
+    options?: {
+        uniqueMessage?: string
+        notFoundMessage?: string
+    },
 ): ActionState<TField> {
-    if (error instanceof AuthorizationError) {
-        return { message: error.message }
-    }
-
-    if (error instanceof Prisma.PrismaClientKnownRequestError) {
-        if (error.code === 'P2002') {
-            return { message: 'Záznam s touto hodnotou už existuje.' }
-        }
-    }
-
-    console.error(error)
-    return { message: fallbackMessage }
+    return normalizeActionError(error, {
+        fallbackMessage,
+        ...options,
+    })
 }

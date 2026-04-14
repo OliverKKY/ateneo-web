@@ -52,3 +52,19 @@ test('authenticated user can still access protected dashboard routes', () => {
         action: 'next',
     })
 })
+
+test('prefix collisions do not mark unrelated routes as protected', () => {
+    const result = getAccessDecision('/dashboarding', false)
+
+    assert.deepEqual(result, {
+        action: 'next',
+    })
+})
+
+test('prefix collisions do not mark unrelated routes as public', () => {
+    const result = getAccessDecision('/publications', false)
+
+    assert.deepEqual(result, {
+        action: 'next',
+    })
+})

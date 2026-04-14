@@ -15,6 +15,12 @@
 
 # next.js
 /.next/
+!/.next/
+/.next/*
+!/.next/types/
+/.next/types/*
+!/.next/types/routes.d.ts
+!/.next/types/validator.ts
 /out/
 
 # production

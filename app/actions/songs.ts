@@ -3,7 +3,11 @@
 import { z } from 'zod'
 import { prisma } from '@/lib/db'
 import { requireRole } from '@/lib/auth'
-import { handleActionError, validationError } from '@/lib/action-utils'
+import {
+    handleActionError,
+    parsePositiveIntegerId,
+    validationError,
+} from '@/lib/action-utils'
 import {
     SheetTypeSchema,
     SONG_DELETE_ROLES,
@@ -98,6 +102,7 @@ export async function createSong(
         return handleActionError<SongFields>(error, 'Chyba při vytváření skladby.')
     }
 
+    revalidatePath('/dashboard')
     revalidatePath('/dashboard/songs')
     redirect('/dashboard/songs')
 }
@@ -107,9 +112,9 @@ export async function updateSong(
     _prevState: ActionState<SongFields> | undefined,
     formData: FormData,
 ) {
-    const parsedSongId = z.coerce.number().int().positive().safeParse(songId)
+    const parsedSongId = parsePositiveIntegerId(songId)
 
-    if (!parsedSongId.success) {
+    if (parsedSongId === null) {
         return { message: 'Neplatná skladba.' }
     }
 
@@ -123,7 +128,7 @@ export async function updateSong(
 
     try {
         await prisma.song.update({
-            where: { id: parsedSongId.data },
+            where: { id: parsedSongId },
             data: {
                 title,
                 author,
@@ -135,7 +140,9 @@ export async function updateSong(
             },
         })
     } catch (error) {
-        return handleActionError<SongFields>(error, 'Chyba při aktualizaci skladby.')
+        return handleActionError<SongFields>(error, 'Chyba při aktualizaci skladby.', {
+            notFoundMessage: 'Skladba nenalezena.',
+        })
     }
 
     revalidatePath('/dashboard')
@@ -144,12 +151,21 @@ export async function updateSong(
 }
 
 export async function deleteSong(id: number) {
+    const parsedSongId = parsePositiveIntegerId(id)
+
+    if (parsedSongId === null) {
+        return { message: 'Neplatná skladba.' }
+    }
+
     try {
         await requireRole(SONG_DELETE_ROLES)
-        await prisma.song.delete({ where: { id } })
+        await prisma.song.delete({ where: { id: parsedSongId } })
+        revalidatePath('/dashboard')
         revalidatePath('/dashboard/songs')
         return { success: true }
     } catch (error) {
-        return handleActionError(error, 'Nelze smazat skladbu.')
+        return handleActionError(error, 'Nelze smazat skladbu.', {
+            notFoundMessage: 'Skladba nenalezena.',
+        })
     }
 }

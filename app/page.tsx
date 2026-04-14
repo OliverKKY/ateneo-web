@@ -1,6 +1,11 @@
+import type { Metadata } from 'next'
 import Link from 'next/link'
 import { PublicNavbar } from '@/app/ui/public/navbar'
 import { PublicFooter } from '@/app/ui/public/footer'
+
+export const metadata: Metadata = {
+    title: 'Ateneo | Domů',
+}
 
 export default function Home() {
   return (

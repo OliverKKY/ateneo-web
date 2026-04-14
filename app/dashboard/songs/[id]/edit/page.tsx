@@ -1,8 +1,13 @@
+import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import CreateSongForm from '@/app/ui/songs/create-form'
 import { prisma } from '@/lib/db'
 import { requirePageRole } from '@/lib/auth'
 import { SONG_EDITOR_ROLES, SheetTypeSchema } from '@/lib/definitions'
+
+export const metadata: Metadata = {
+    title: 'Upravit skladbu',
+}
 
 type SongEditPageProps = {
     params: Promise<{

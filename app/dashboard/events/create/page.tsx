@@ -1,6 +1,11 @@
+import type { Metadata } from 'next'
 import CreateEventForm from '@/app/ui/events/create-form'
 import { requirePageRole } from '@/lib/auth'
 import { EVENT_MANAGER_ROLES } from '@/lib/definitions'
+
+export const metadata: Metadata = {
+    title: 'Nová událost',
+}
 
 export default async function CreateEventPage() {
     await requirePageRole(EVENT_MANAGER_ROLES, '/dashboard/events')

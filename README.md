@@ -17,6 +17,19 @@ Požadované proměnné:
 - `DATABASE_URL`
 - `JWT_SECRET`
 
+Příklad:
+
+```bash
+DATABASE_URL="file:./dev.db"
+JWT_SECRET="replace-with-a-long-random-secret"
+```
+
+Pro vygenerování bezpečného `JWT_SECRET` můžete použít například:
+
+```bash
+node -e "console.log(require('crypto').randomBytes(32).toString('base64url'))"
+```
+
 3. Aplikujte migrace a naplňte základní data:
 
 ```bash
@@ -50,9 +63,11 @@ Výchozí seed vytvoří administrátora:
 
 ## Provozní poznámky
 
-- `JWT_SECRET` musí být nastavený, jinak aplikace failne při startu.
+- `JWT_SECRET` musí být nastavený, jinak selžou operace pracující se session cookie.
 - Pokud došlo k úniku tajného klíče, je potřeba ho okamžitě vyměnit.
 - Pro nasazení je vhodné pravidelně zálohovat databázi a uchovávat migrace spolu se seed skriptem.
+- Repo záměrně verzuje minimální soubory v `.next/types/`, aby `npx tsc --noEmit` fungovalo i v čistém checkoutu před prvním `next build`.
+- Po přidání nebo přejmenování rout je potřeba tyto `.next/types/*` soubory obnovit přes `npm run build`, aby zůstaly v souladu s aktuální strukturou aplikace.
 
 ## GitHub CI
 

@@ -1,10 +1,15 @@
+import type { Metadata } from 'next'
 import Link from 'next/link'
 import { prisma } from '@/lib/db'
+import { formatCzechDateTime } from '@/lib/date'
 import { PublicFooter } from '@/app/ui/public/footer'
 import { PublicNavbar } from '@/app/ui/public/navbar'
 import { EVENT_TYPE_LABELS, EventTypeSchema } from '@/lib/definitions'
 
 export const dynamic = 'force-dynamic'
+export const metadata: Metadata = {
+    title: 'Události',
+}
 
 export default async function PublicEventsPage() {
     const events = await prisma.event.findMany({
@@ -44,13 +49,7 @@ export default async function PublicEventsPage() {
 
                     {events.map((event) => {
                         const eventType = EventTypeSchema.safeParse(event.type)
-                        const formattedDate = new Date(event.startDateTime).toLocaleDateString('cs-CZ', {
-                            day: 'numeric',
-                            month: 'long',
-                            year: 'numeric',
-                            hour: '2-digit',
-                            minute: '2-digit',
-                        })
+                        const formattedDate = formatCzechDateTime(event.startDateTime)
 
                         return (
                             <article key={event.id} className="rounded-[2rem] border border-white/10 bg-white/6 p-7 shadow-xl shadow-black/10 backdrop-blur-sm">

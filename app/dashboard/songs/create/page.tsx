@@ -1,6 +1,11 @@
+import type { Metadata } from 'next'
 import CreateSongForm from '@/app/ui/songs/create-form'
 import { requirePageRole } from '@/lib/auth'
 import { SONG_EDITOR_ROLES } from '@/lib/definitions'
+
+export const metadata: Metadata = {
+    title: 'Nová skladba',
+}
 
 export default async function CreateSongPage() {
     await requirePageRole(SONG_EDITOR_ROLES, '/dashboard/songs')

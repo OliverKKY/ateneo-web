@@ -2,12 +2,21 @@ export type AccessDecision =
     | { action: 'next' }
     | { action: 'redirect'; destination: '/login' | '/dashboard' }
 
+function matchesRoutePrefix(path: string, prefix: string): boolean {
+    return path === prefix || path.startsWith(`${prefix}/`)
+}
+
 export function getAccessDecision(
     path: string,
     hasSession: boolean,
 ): AccessDecision {
-    const isProtectedRoute = path.startsWith('/dashboard') || path.startsWith('/intranet')
-    const isPublicRoute = path === '/login' || path === '/' || path.startsWith('/public')
+    const isProtectedRoute =
+        matchesRoutePrefix(path, '/dashboard') ||
+        matchesRoutePrefix(path, '/intranet')
+    const isPublicRoute =
+        path === '/login' ||
+        path === '/' ||
+        matchesRoutePrefix(path, '/public')
 
     if (isProtectedRoute && !hasSession) {
         return { action: 'redirect', destination: '/login' }

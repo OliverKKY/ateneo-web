@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { deleteEvent, eventSignup } from '@/app/actions/events'
-import { SIGNUP_STATUSES, type SignupStatus } from '@/lib/definitions'
+import { SIGNUP_STATUS, type SignupStatus } from '@/lib/definitions'
 import { useState } from 'react'
 
 export function SignupButton({
@@ -39,23 +39,23 @@ export function SignupButton({
         <div className="space-y-2">
             <div className="flex gap-2 bg-gray-50 p-1 rounded-lg">
                 <button
-                    onClick={() => handleSignup(SIGNUP_STATUSES[0])}
+                    onClick={() => handleSignup(SIGNUP_STATUS.GOING)}
                     disabled={isPending || !canSignup}
-                    className={`px-3 py-1 rounded-md text-sm font-medium transition-all ${status === 'going' ? 'bg-green-500 text-white shadow-sm' : 'text-gray-500 hover:bg-gray-200'} disabled:cursor-not-allowed disabled:opacity-60`}
+                    className={`px-3 py-1 rounded-md text-sm font-medium transition-all ${status === SIGNUP_STATUS.GOING ? 'bg-green-500 text-white shadow-sm' : 'text-gray-500 hover:bg-gray-200'} disabled:cursor-not-allowed disabled:opacity-60`}
                 >
                     Jdu
                 </button>
                 <button
-                    onClick={() => handleSignup(SIGNUP_STATUSES[1])}
+                    onClick={() => handleSignup(SIGNUP_STATUS.MAYBE)}
                     disabled={isPending || !canSignup}
-                    className={`px-3 py-1 rounded-md text-sm font-medium transition-all ${status === 'maybe' ? 'bg-orange-400 text-white shadow-sm' : 'text-gray-500 hover:bg-gray-200'} disabled:cursor-not-allowed disabled:opacity-60`}
+                    className={`px-3 py-1 rounded-md text-sm font-medium transition-all ${status === SIGNUP_STATUS.MAYBE ? 'bg-orange-400 text-white shadow-sm' : 'text-gray-500 hover:bg-gray-200'} disabled:cursor-not-allowed disabled:opacity-60`}
                 >
                     Možná
                 </button>
                 <button
-                    onClick={() => handleSignup(SIGNUP_STATUSES[2])}
+                    onClick={() => handleSignup(SIGNUP_STATUS.NOT_GOING)}
                     disabled={isPending || !canSignup}
-                    className={`px-3 py-1 rounded-md text-sm font-medium transition-all ${status === 'not_going' ? 'bg-red-500 text-white shadow-sm' : 'text-gray-500 hover:bg-gray-200'} disabled:cursor-not-allowed disabled:opacity-60`}
+                    className={`px-3 py-1 rounded-md text-sm font-medium transition-all ${status === SIGNUP_STATUS.NOT_GOING ? 'bg-red-500 text-white shadow-sm' : 'text-gray-500 hover:bg-gray-200'} disabled:cursor-not-allowed disabled:opacity-60`}
                 >
                     Nejdu
                 </button>
